@@ -72,7 +72,7 @@
     <input type="text" id="lokasi" placeholder="Masukkan nama kota..." />
     <button id="cekCuaca">Cek Cuaca</button>
 
-    
+
     <div class="result" id="hasil" style="display: none;">
       <p><strong>Kecamatan:</strong> <span id="kecamatan"></span></p>
       <p><strong>Provinsi:</strong> <span id="provinsi"></span></p>
@@ -95,7 +95,7 @@
         return;
       }
 
-      // Ganti YOUR_API_KEY dengan API key milik Anda dari https://www.weatherapi.com/my/
+    
       const apiKey = "5703869a87a34fe8a1311200250610";
       const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lokasi}&aqi=no`;
 
@@ -105,7 +105,7 @@
 
         const data = await response.json();
 
-        // Tampilkan data
+    
         document.getElementById("kecamatan").textContent = data.location.name;
         document.getElementById("provinsi").textContent = data.location.region;
         document.getElementById("negara").textContent = data.location.country;
