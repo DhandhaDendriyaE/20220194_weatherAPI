@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFO CUACA Detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        #main-container {
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            max-width: 600px;
+        }
+        .header {
+            font-size: 1.2em;
+            font-weight: bold;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #6c757d;
+        }
+        .data-row {
+            margin-bottom: 8px;
+            display: flex;
+        }
+        .label {
+            width: 120px;
+            font-weight: normal;
+        }
+        .value {
+            font-weight: bold;
+        }
+        #location-input {
+            padding: 5px;
+            margin-right: 10px;
+            width: 200px;
+        }
+        #get-button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <div class="header">INFO CUACA</div>
+
+        <div class="data-row">
+            <span class="label">Lokasi :</span>
+            <input type="text" id="location-input" value="Yogyakarta">
+            <button id="get-button">GET</button>
+        </div>
+        
+        <div id="tampilan">
+            <div class="data-row">Memuat data...</div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        const API_KEY = "5703869a87a34fe8a1311200250610";
+        const BASE_URL = "https://api.weatherapi.com/v1/current.json";
+
+        function fetchWeatherData(city) {
+            const displayArea = $("#tampilan");
+            displayArea.html('<div class="data-row">Memuat data...</div>');
+            
+            const fullUrl = `${BASE_URL}?key=${API_KEY}&q=${city}&aqi=no`;
+
+            $.ajax({
+                url: fullUrl,
+                method: "GET",
+                success: function(data) {
+                    // Mapping data dari API ke format tampilan yang diminta
+                    let negara = data.location.country;
+                    let provinsi = data.location.region; // Menggunakan Region sebagai Provinsi
+                    let kecamatan = data.location.name;  // Menggunakan Nama Kota/Lokasi sebagai Kecamatan
+                    let suhu = data.current.temp_c;
+                    let kelembaban = data.current.humidity;
+                    let lat = data.location.lat;
+                    let lon = data.location.lon;
+
+                    displayArea.html(`
+                        <div class="data-row">
+                            <span class="label">Negara:</span>
+                            <span class="value">${negara}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Provinsi:</span>
+                            <span class="value">${provinsi || '-'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Kecamatan:</span>
+                            <span class="value">${kecamatan || '-'}</span>
+                        </div>
+                        <br>
+                        <div class="data-row">
+                            <span class="label">Suhu:</span>
+                            <span class="value">${suhu}°C</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Kelembaban:</span>
+                            <span class="value">${kelembaban}%</span>
+                        </div>
+                        <br>
+                        <div class="data-row">
+                            <span class="label">Lokasi:</span>
+                            <span class="value">${kecamatan}, ${provinsi}, ${negara}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Latitude:</span>
+                            <span class="value">${lat}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">Longitude:</span>
+                            <span class="value">${lon}</span>
+                        </div>
+                    `);
+                },
+                error: function(xhr) {
+                    let errorMessage = "Lokasi tidak ditemukan atau terjadi kesalahan jaringan.";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = `Error: &{xhr.responseJSON.error.message}`;
+                    }
+                    displayArea.html(<div class="data-row" style="color: red;">${errorMessage}</div>);
+                    console.error("Error fetching data:", xhr);
+                }
+            });
+        }
+
+        // Event Listener untuk Tombol GET
+        $("#get-button").on("click", function() {
+            const city = $("#location-input").val().trim();
+            if (city) {
+                fetchWeatherData(city);
+            } else {
+                alert("Mohon masukkan lokasi!");
+            }
+        });
+
+        // Event Listener untuk tombol Enter di input field
+        $("#location-input").on("keypress", function(e) {
+            if (e.which === 13) {
+                $("#get-button").click();
+            }
+        });
+        
+        // Panggil fungsi sekali saat halaman dimuat
+        $(document).ready(function() {
+             fetchWeatherData($("#location-input").val());
+        });
+    </script>
+</body>
+</html>
